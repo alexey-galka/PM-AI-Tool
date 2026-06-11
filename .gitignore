@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Streamlit
+.streamlit/
+*.pid
+
+# DB
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+ollama_calls.log
+
+# Application data
+data/
+chroma_db/
+audio_storage/
+transcripts/
+models/rag/
+models/whisper/
+
+# Config files with secrets
+.env
+.secrets
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS generated files
+Thumbs.db
+.DS_Store
+.directory
+
+# Temp files
+*.tmp
+*.temp
+temp/
+
+# Reports
+*.pdf
+*.xlsx
+
+# Backup
+*.bak
+*.backup
+backup_*/
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local files
+test_*.py
+debug_*.py
+structure.txt
