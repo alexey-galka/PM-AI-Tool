@@ -14,6 +14,7 @@ from services.risks_service import render_ai_risks_button
 from database.models.projects import delete_project
 from services.raci_service import render_ai_raci_button
 from services.tasks_service import render_ai_tasks_button
+from services.raci_service import preview_raci_matrix
 
 
 def show_edit_project():
@@ -203,18 +204,28 @@ def show_edit_project():
 
         # ==================== 6. RACI MATRIX ====================
         with st.expander("RACI Matrix", expanded=False):
-            from services.raci_service import preview_raci_matrix
-            # Prepare project info for RACI generation
+            # Prepare project info for RACI generation - use edit_team_list
             project_info_for_raci = {
                 'name': basic_info['name'],
                 'goals': basic_info['goals'],
                 'stages': st.session_state.get('edit_stages_list', []),
-                'team': st.session_state.get('edit_team_list', [])
+                # Use edit_team_list
+                'team': st.session_state.get('edit_team_list', []),
+                'tasks': st.session_state.get('edit_tasks_list', [])
             }
+
+            st.caption(
+                f"Team members available: {len(project_info_for_raci['team'])}")
+            if project_info_for_raci['team']:
+                with st.expander("Team members to be used in RACI"):
+                    for member in project_info_for_raci['team']:
+                        st.write(
+                            f"- {member.get('name')} ({member.get('role')})")
+
             render_ai_raci_button(project_info_for_raci, 'edit_raci_list')
-            
+
             raci = render_edit_raci_form()
-            
+
             # Preview RACI matrix after the form
             st.divider()
             preview_raci_matrix(st.session_state.get('edit_raci_list', []))
@@ -239,7 +250,7 @@ def show_edit_project():
                 'must_have': [m.strip() for m in project_scope['must_have'].split('\n') if m.strip()] if project_scope['must_have'] else []
             }
             render_ai_tasks_button(project_info_for_tasks, 'edit_tasks_list')
-            
+
             articles, tasks = render_edit_materials_form()
 
         # ==================== FORM BUTTONS ====================
@@ -281,7 +292,7 @@ def show_edit_project():
                             "description": r.get('description', ''),
                             "impact_on_result": r.get('impact_on_result', ''),
                             "impact_on_timeline": r.get('impact_on_timeline', ''),
-                            "mitigation_plan": r.get('mitigation', '')
+                            "mitigation_plan": r.get('mitigation_plan', '')
                         }
                         for r in st.session_state.get('edit_risks_list', [])
                         if r.get('description', '').strip()

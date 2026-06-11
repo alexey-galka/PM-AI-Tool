@@ -11,6 +11,8 @@ from components.forms.communications_form import render_communications_form
 from components.forms.materials_form import render_materials_form
 from components.dialogs.audio_upload import render_audio_upload
 from services.risks_service import render_ai_risks_button
+from services.raci_service import preview_raci_matrix
+from services.raci_service import render_ai_raci_button
 
 
 def show_new_project():
@@ -100,18 +102,29 @@ def show_new_project():
 
         # ==================== 6. RACI MATRIX ====================
         with st.expander("RACI Matrix", expanded=False):
-            from services.raci_service import render_ai_raci_button, preview_raci_matrix
-            # Prepare project info for RACI generation
+            # Prepare project info for RACI generation - CRITICAL: pass team_list directly
             project_info_for_raci = {
                 'name': basic_info['name'],
                 'goals': basic_info['goals'],
                 'stages': st.session_state.get('stages_list', []),
-                'team': st.session_state.get('team_list', [])
+                # Pass team_list directly
+                'team': st.session_state.get('team_list', []),
+                'tasks': st.session_state.get('tasks_list', [])
             }
+
+            # Show debug info
+            st.caption(
+                f"Team members available: {len(project_info_for_raci['team'])}")
+            if project_info_for_raci['team']:
+                with st.expander("Team members to be used in RACI"):
+                    for member in project_info_for_raci['team']:
+                        st.write(
+                            f"- {member.get('name')} ({member.get('role')})")
+
             render_ai_raci_button(project_info_for_raci, 'raci_list')
-            
+
             raci = render_raci_form()
-            
+
             # Preview RACI matrix after the form
             st.divider()
             preview_raci_matrix(st.session_state.get('raci_list', []))
@@ -171,7 +184,7 @@ def show_new_project():
                             "description": r.get('description', ''),
                             "impact_on_result": r.get('impact_on_result', ''),
                             "impact_on_timeline": r.get('impact_on_timeline', ''),
-                            "mitigation_plan": r.get('mitigation', '')
+                            "mitigation_plan": r.get('mitigation_plan', '')
                         }
                         for r in st.session_state.get('risks_list', [])
                         if r.get('description', '').strip()

@@ -68,40 +68,83 @@ def extract_project_info(transcript):
         print("Transcription is too short")
         return None
 
-    prompt = f"""Analyze the text and fill in the project passport. Fill in ALL fields.
+#     prompt = f"""Analyze the text and fill in the project passport. Fill in ALL fields.
 
-Text:
+# Text:
+# {transcript}
+
+# Return ONLY valid JSON. ALL fields MUST be filled in. ALL 9 fields must be included:
+# - name: project name (string)
+# - goals: project goals (string)
+# - key_results: key results (string)
+# - problem: problem the project solves (string)
+# - hypothesis: project hypothesis (string)
+# - success_criteria: success criteria (string)
+# - must_have: mandatory requirements (array of strings)
+# - nice_to_have: desirable requirements (array of strings)
+# - not_in_scope: what is not included in the project (array of strings)
+
+# If there is no information in the text, write "Not specified" for strings and [] for arrays.
+
+# Example response:
+# {{
+#      "name": "Project name",
+#      "goals": "Project goals",
+#      "key_results": "Key results",
+#      "problem": "Project problem",
+#      "hypothesis": "Project hypothesis",
+#      "success_criteria": "Success criteria",
+#      "must_have": ["Requirement1", "Requirement2"],
+#      "nice_to_have": ["Requirement1", "Requirement2"],
+#      "not_in_scope": ["Requirement1", "Requirement2"]
+# }}
+
+# IMPORTANT: Return ONLY the JSON object, no other text before or after. 
+# """
+
+    prompt = f"""You are a project manager assistant. Extract project information from the following meeting transcript or lecture.
+
+TRANSCRIPT:
 {transcript}
 
-Return ONLY valid JSON. ALL fields MUST be filled in. ALL 9 fields must be included:
-- name: project name (string)
-- goals: project goals (string)
-- key_results: key results (string)
-- problem: problem the project solves (string)
-- hypothesis: project hypothesis (string)
-- success_criteria: success criteria (string)
-- must_have: mandatory requirements (array of strings)
-- nice_to_have: desirable requirements (array of strings)
-- not_in_scope: what is not included in the project (array of strings)
+Based on this transcript, create a project passport. If the transcript is a lecture or training material, create a project around applying those skills.
 
-If there is no information in the text, write "Not specified" for strings and [] for arrays.
+Return ONLY valid JSON with these 9 fields:
 
-Example response:
+1. name: A project name derived from the main topic (string)
+2. goals: What this project aims to achieve (string)
+3. key_results: Measurable outcomes (string) 
+4. problem: The problem this project solves (string)
+5. hypothesis: What we believe will happen if we solve the problem (string)
+6. success_criteria: How we measure success (string)
+7. must_have: List of essential requirements for this project (array of strings)
+8. nice_to_have: List of nice-to-have features (array of strings)
+9. not_in_scope: What is explicitly excluded (array of strings)
+
+RULES:
+- If the transcript is a lecture/training, create a project about IMPLEMENTING those skills
+- Extract at least 3 must-have requirements from the content
+- For the example above (public speaking lecture), must_have should include: ["Public speaking techniques", "Pacing strategies", "Visual aids usage"]
+- For strings with no info, use "Learn and apply main topic skills"
+- For arrays with no info, extract 2-3 items from the transcript content
+- NEVER leave arrays empty - extract at least 2 items from the text
+
+EXAMPLE RESPONSE for a public speaking lecture:
 {{
-     "name": "Project name",
-     "goals": "Project goals",
-     "key_results": "Key results",
-     "problem": "Project problem",
-     "hypothesis": "Project hypothesis",
-     "success_criteria": "Success criteria",
-     "must_have": ["Requirement1", "Requirement2"],
-     "nice_to_have": ["Requirement1", "Requirement2"],
-     "not_in_scope": ["Requirement1", "Requirement2"]
+    "name": "Public Speaking Skills Development Project",
+    "goals": "Master effective public speaking techniques including proper pacing, pause usage, and audience engagement",
+    "key_results": "Deliver 3 successful presentations with positive feedback, reduce speaking speed by 25%",
+    "problem": "Speakers often rush through presentations without allowing pauses, losing audience attention",
+    "hypothesis": "Learning proper pacing and pause techniques will improve audience engagement",
+    "success_criteria": "Audience feedback score of 4.5+, natural use of pauses in presentations",
+    "must_have": ["Pacing and pause control techniques", "Strong presentation openings", "Visual aids integration", "Note-taking strategies"],
+    "nice_to_have": ["Advanced storytelling techniques", "Handling Q&A sessions", "Managing presentation anxiety"],
+    "not_in_scope": ["One-on-one coaching", "Writing presentation scripts"]
 }}
 
-IMPORTANT: Return ONLY the JSON object, no other text before or after. 
+Return ONLY the JSON object, no other text.
 """
-
+    
     response = call_ollama(prompt)
 
     # Clean response from control characters

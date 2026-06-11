@@ -1,0 +1,5 @@
+# Показать все проекты
+python3 test/create_template_projects.py --list
+
+# Удалить все проекты (очистка)
+python3 test/create_template_projects.py --delete-all
