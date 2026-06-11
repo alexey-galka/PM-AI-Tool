@@ -74,4 +74,4 @@ htmlcov/
 # Local files
 test_*.py
 debug_*.py
-structure.txt
+structure.txttest/
